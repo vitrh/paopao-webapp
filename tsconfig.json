@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"target": "ES2019",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"incremental": true,
+		"forceConsistentCasingInFileNames": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"baseUrl": "."
+	},
+	"references": [
+		{
+			"path": "packages/web"
+		},
+		{
+			"path": "packages/api"
+		}
+	],
+	"include": ["**/*.ts", "**/*.tsx"],
+	"exclude": ["node_modules", "packages/**/node_modules", "dist", "*.d.ts"]
+}

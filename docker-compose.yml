@@ -1,0 +1,83 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    container_name: 'vinhfullstack-reverse-proxy'
+    restart: unless-stopped
+    image: traefik:2.4
+    command:
+      - --api.insecure=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web-secure.address=:443
+      - --providers.docker=true
+      - --providers.file.filename=/etc/traefik/config.yml
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8080:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/traefik.http.yml:/etc/traefik/config.yml:ro
+      - ./config/certs:/etc/certs:ro
+
+  postgres:
+    container_name: 'vinhfullstack-postgres'
+    restart: unless-stopped
+    image: 'postgres:13'
+    ports:
+      - '15432:5432'
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data/'
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  api:
+    container_name: 'vinhfullstack-api'
+    restart: unless-stopped
+    image: node:16
+    command: yarn workspace @vinhfullstack/api run dev
+    ports:
+      - '4000:4000'
+    volumes:
+      - .:/srv/api:rw
+    working_dir: /srv/api
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@vinhfullstack-postgres/postgres?connect_timeout=300
+    depends_on:
+      - postgres
+    labels:
+      - 'traefik.http.routers.api-http.rule=Host(`vinhfullstack.localhost`) && PathPrefix(`/api`)'
+      - 'traefik.http.routers.api-http.service=api'
+      - 'traefik.http.routers.api-https.rule=Host(`vinhfullstack.localhost`) && PathPrefix(`/api`)'
+      - 'traefik.http.routers.api-https.service=api'
+      - 'traefik.http.routers.api-https.tls=true'
+      - 'traefik.http.services.api.loadbalancer.server.port=4000'
+
+  web:
+    container_name: 'vinhfullstack-next'
+    restart: unless-stopped
+    command: yarn workspace @vinhfullstack/web run dev
+    image: node:14
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/workspace:rw
+    working_dir: /workspace
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@vinhfullstack-postgres/postgres
+    depends_on:
+      - postgres
+    labels:
+      # Set up both http and https endpoints:
+      - 'traefik.http.routers.next-http.rule=Host(`vinhfullstack.localhost`)'
+      - 'traefik.http.routers.next-http.service=next'
+      - 'traefik.http.routers.next-https.rule=Host(`vinhfullstack.localhost`)'
+      - 'traefik.http.routers.next-https.service=next'
+      - 'traefik.http.routers.next-https.tls=true'
+      - 'traefik.http.services.next.loadbalancer.server.port=3000'
+
+volumes:
+  pgdata: {}

@@ -1,0 +1,24 @@
+{
+	"name": "vinhfullstack",
+	"version": "1.0.0",
+	"main": "index.js",
+	"repository": "https://github.com/vitrh/fullstackwebapp",
+	"author": "furkandmrblk <ibrahimdmrblk@outlook.de>",
+	"license": "MIT",
+	"scripts": {
+		"dev": "docker-compose up",
+		"prisma:docker": "docker-compose run --publish 5555:5555 api yarn prisma"
+	},
+	"workspaces": [
+		"packages/*"
+	],
+	"private": true,
+	"devDependencies": {
+		"dotenv": "^10.0.0",
+		"nodemon": "^2.0.12",
+		"ts-node": "^10.2.1"
+	},
+	"engines": {
+		"node": ">=14"
+	}
+}

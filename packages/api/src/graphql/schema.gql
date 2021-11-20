@@ -1,0 +1,15 @@
+scalar DateTime
+
+type Mutation
+
+type Query {
+  getUser(id: ID!): User!
+}
+
+type Subscription
+
+type User {
+  id: ID!
+  name: String!
+  password: String!
+}
