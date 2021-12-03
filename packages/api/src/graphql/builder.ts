@@ -71,7 +71,7 @@ export const builder = new SchemaBuilder<{
 		SimpleObjectsPlugin,
 		ScopeAuthPlugin,
 		ValidationPlugin,
-		SmartSubscriptionsPlugin,
+		// SmartSubscriptionsPlugin,
 		PrismaPlugin,
 	],
 	authScopes: async ({ user }) => ({
@@ -80,8 +80,8 @@ export const builder = new SchemaBuilder<{
 		unauthenticated: !user,
 	}),
 	smartSubscriptions: {
-		...subscribeOptionsFromIterator((name, { pubsub }) => {
-			return pubsub.asyncIterator(name);
+		...subscribeOptionsFromIterator((name, {}) => {
+			return null;
 		}),
 	},
 	errorOptions: {
